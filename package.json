@@ -1,0 +1,26 @@
+{
+    "name": "neon-jump",
+    "version": "1.0.0",
+    "description": "Neon Jump",
+    "main": "index.html",
+    "scripts": {
+        "build": "webpack --mode development",
+        "start": "webpack-dev-server --hot",
+        "prod": "webpack --mode production"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "phaser": "^3.21.0"
+    },
+    "devDependencies": {
+        "@types/facebook-instant-games": "^6.3.1",
+        "@types/node": "^12.12.5",
+        "copy-webpack-plugin": "^5.0.4",
+        "ts-loader": "^6.2.1",
+        "typescript": "^3.6.4",
+        "webpack": "^4.41.2",
+        "webpack-cli": "^3.3.10",
+        "webpack-dev-server": "^3.9.0"
+    }
+}
