@@ -1,6 +1,6 @@
 export class Background extends Phaser.GameObjects.Rectangle {
 
-    constructor(scene: Phaser.Scene) {
+    constructor(scene: Phaser.Scene) { 
         super(
             scene,
             scene.physics.world.bounds.centerX,

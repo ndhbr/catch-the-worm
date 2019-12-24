@@ -2,6 +2,7 @@ import { Background } from "../classes/background";
 import { GameArea } from "../classes/game-area";
 import { Player } from "../classes/player";
 import { StaticSpikes } from "../classes/static-spikes";
+import { ScoreWall } from "../classes/score-wall";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -28,19 +29,29 @@ export class GameScene extends Phaser.Scene {
         let gameArea = new GameArea(this);
         let player = new Player(this);
         let staticSpikes = new StaticSpikes(this);
+        let scoreWall = new ScoreWall(this);
 
         this.add.existing(background);
         this.add.existing(gameArea);
         this.add.existing(player);
-        this.physics.add.group()
+
         this.physics.add.existing(player, false);
 
         staticSpikes.addSpikes(gameArea.width);
-        player.setGravity(0, 100);
+        scoreWall.addWalls();
+        player.setGravity(0, 700);
 
         this.physics.add.collider(staticSpikes, player, () => {
             player.resetPosition();
         });
+
+        this.physics.add.collider(scoreWall, player, () => {
+            player.switchDirection();
+        });
+
+        this.input.keyboard.on('keydown-SPACE', () => {
+			player.jump();
+		}, this);
     }
 
     public update(time: number): void {}
