@@ -38,8 +38,13 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.existing(player, false);
 
         staticSpikes.addSpikes(gameArea.width);
+        staticSpikes.children.each((child:any) => {
+            child.body.setSize(child.body.width / 2, child.body.height / 2, true);
+        });
+
         scoreWall.addWalls();
         player.setGravity(0, 700);
+        // player.setGravity(0, 0);
 
         this.physics.add.collider(staticSpikes, player, () => {
             player.resetPosition();

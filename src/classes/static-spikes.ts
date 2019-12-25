@@ -1,4 +1,5 @@
 const SPIKE_SIZE = 32;
+const SPIKE_PADDING = 10;
 
 export class StaticSpikes extends Phaser.Physics.Arcade.Group {
 
@@ -9,12 +10,12 @@ export class StaticSpikes extends Phaser.Physics.Arcade.Group {
     }
 
     addSpikes(width: number) {
-        let numberSpikes: number = Math.floor(width / SPIKE_SIZE);
+        let numberSpikes: number = Math.floor(width / (SPIKE_SIZE + SPIKE_PADDING));
         let i: number;
 
         for (i = 1; i <= numberSpikes; i++) {
             let triangle = this.scene.add.triangle(
-                i * SPIKE_SIZE,
+                i * (SPIKE_SIZE + SPIKE_PADDING),
                 30,
                 0,
                 0,
@@ -31,7 +32,7 @@ export class StaticSpikes extends Phaser.Physics.Arcade.Group {
 
         for (i = 1; i <= numberSpikes; i++) {
             let triangle = this.scene.add.triangle(
-                i * SPIKE_SIZE,
+                i * (SPIKE_SIZE + SPIKE_PADDING),
                 this.scene.physics.world.bounds.height * 0.65,
                 0,
                 SPIKE_SIZE,
