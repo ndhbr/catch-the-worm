@@ -1,24 +1,27 @@
 export class ScoreWall extends Phaser.Physics.Arcade.Group {
 
-    constructor(public scene: Phaser.Scene) {
+    constructor(public scene: Phaser.Scene,
+        public gameAreaBounds: Phaser.Geom.Rectangle) {
         super(scene.physics.world, scene, {
             immovable: true
         });
     }
 
     addWalls() {
+        let width: number = 32;
+
         let measures = {
             left: {
-                x: (this.scene.physics.world.bounds.width * 0.1) / 2 - 10,
+                x: this.gameAreaBounds.left - width,
                 y: 30,
-                width: 10,
-                height: this.scene.physics.world.bounds.height * 0.65
+                width: width,
+                height: this.gameAreaBounds.height
             },
             right: {
-                x: (this.scene.physics.world.bounds.width * 0.9) + (this.scene.physics.world.bounds.width * 0.1) / 2,
+                x: this.gameAreaBounds.right,
                 y: 30,
-                width: 10,
-                height: this.scene.physics.world.bounds.height * 0.65
+                width: width,
+                height: this.gameAreaBounds.height
             }
         };
 
@@ -27,7 +30,8 @@ export class ScoreWall extends Phaser.Physics.Arcade.Group {
             measures.left.y,
             measures.left.width,
             measures.left.height,
-            0x006f5c
+            0x37474F,
+            1
         );
 
         let right = this.scene.add.rectangle(
@@ -35,7 +39,8 @@ export class ScoreWall extends Phaser.Physics.Arcade.Group {
             measures.right.y,
             measures.right.width,
             measures.right.height,
-            0x006f5c
+            0x37474F,
+            1
         );
 
         left.setOrigin(0, 0);

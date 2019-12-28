@@ -1,0 +1,16 @@
+{
+    "MAIN_MENU": {
+        "PLAY": "Spielen",
+        "SELECT_CHARACTER": "Spieler auswählen",
+        "LEADERBOARD": "Bestenliste"
+    },
+    "GAME_OVER": {
+        "CONTINUE": "Fortsetzen (nach Video)",
+        "PLAY_AGAIN": "Nochmal spielen",
+        "MENU": "Menü"
+    },
+    "LEADERBOARD": {
+        "WORLD": "Welt",
+        "FRIENDS": "Freunde"
+    }
+}

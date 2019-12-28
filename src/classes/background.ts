@@ -5,9 +5,9 @@ export class Background extends Phaser.GameObjects.Rectangle {
             scene,
             scene.physics.world.bounds.centerX,
             scene.physics.world.bounds.centerY,
-            scene.physics.world.bounds.width,
-            scene.physics.world.bounds.height,
-            0x006f5c
+            scene.physics.world.bounds.width * 1.2,
+            scene.physics.world.bounds.height * 1.2,
+            0x37474F
         );
     }
 }
