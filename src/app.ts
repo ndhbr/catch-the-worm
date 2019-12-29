@@ -6,6 +6,7 @@ import { MainMenuScene } from './scenes/main-menu';
 import { LeaderboardScene } from './scenes/leaderboard';
 import { ChooseCharacterScene } from './scenes/choose-character';
 
+import ContainerLitePlugin from 'phaser3-rex-plugins/plugins/containerlite-plugin.js';
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 
 // DEBUG URL: https://www.facebook.com/embed/instantgames/2519737888241507/player?game_url=https%3A%2F%2Flocalhost%3A8080

@@ -1,114 +1,103 @@
+import { Colors } from "../colors";
+
 const Random = Phaser.Math.Between;
 
-const COLOR_PRIMARY = 0x4e342e;
+const COLOR_PRIMARY = Colors.GAME_COLORS.BLUE_GREY;
 const COLOR_LIGHT = 0x7b5e57;
 const COLOR_DARK = 0x260e04;
 
 export class LeaderboardDialog {
 
-    constructor(public scene: Phaser.Scene) {}
+    constructor(public scene: any) {}
 
     addLeaderboard() {
         var scrollMode = 0; // 0:vertical, 1:horizontal
-		// @ts-ignore
-        var gridTable = this.scene.rexUI.add.gridTable({
-            x: this.scene.physics.world.bounds.centerX,
-            y: 300,
-            width: 300,
-            height: 420,
 
-            scrollMode: scrollMode,
+        var tabs = this.scene.rexUI.add.tabs({
+			x: this.scene.physics.world.bounds.centerX,
+			y: 300,
+			panel: this.scene.rexUI.add.gridTable({
+				background: this.scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_PRIMARY),
+				table: {
+					width: 250,
+					height: 400,
+					cellWidth: 120,
+					cellHeight: 60,
+					columns: 2,
+					mask: {
+						padding: 2,
+					},
+				},
+				slider: {
+					track: this.scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
+					thumb: this.scene.rexUI.add.roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT),
+				},
+				// scroller: true,
+				createCellContainerCallback: function (cell) {
+					var scene = cell.scene,
+						width = cell.width,
+						height = cell.height,
+						item = cell.item,
+						index = cell.index;
 
-			// @ts-ignore
-			background: this.scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_PRIMARY),
-
-            table: {
-                cellWidth: undefined,
-                cellHeight: 60,
-
-                columns: 1,
-
-                mask: {
-                    padding: 0,
-                },
-
-                reuseCellContainer: true,
-            },
-
-            slider: {
-				// @ts-ignore
-				track: this.scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
-				// @ts-ignore
-                thumb: this.scene.rexUI.add.roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT),
-            },
-
-			// @ts-ignore
-            header: this.scene.rexUI.add.label({
-                width: undefined,
-                height: 30,
-				orientation: scrollMode,
-				// @ts-ignore
-                background: this.scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0, COLOR_DARK),
-                text: this.scene.add.text(0, 0, 'Bestenliste'),
-            }),
-
-			// @ts-ignore
-            footer: this.scene.rexUI.add.label({
-                width: undefined,
-                height: 30,
-				orientation: scrollMode,
-				// @ts-ignore
-                background: this.scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0, COLOR_DARK),
-                text: this.scene.add.text(0, 0, 'Top 100'),
-            }),
-            space: {
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: 20,
-
-                table: 10,
-                header: 10,
-                footer: 10,
-            },
-
-            createCellContainerCallback: (cell, cellContainer) => {
-                var scene = cell.scene,
-                    width = cell.width,
-                    height = cell.height,
-                    item = cell.item,
-					index = cell.index;
-					
-                if (cellContainer === null) {
-                    cellContainer = scene.rexUI.add.label({
-                        width: width,
-                        height: height,
-                        orientation: scrollMode,
-                        background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, COLOR_DARK),
-                        icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, 0x0),
-                        text: scene.add.text(0, 0, ''),
-
-                        space: {
-                            icon: 10,
-                            left: 15,
-                            top: 0,
-                        }
-                    });
-                    console.log(cell.index + ': create new cell-container');
-                } else {
-                    console.log(cell.index + ': reuse cell-container');
-                }
-
-                // Set properties from item value
-                cellContainer.setMinSize(width, height); // Size might changed in this demo
-                cellContainer.getElement('text').setText(item.id); // Set text of text object
-                cellContainer.getElement('icon').setFillStyle(item.color); // Set fill color of round rectangle object
-                return cellContainer;
-            },
-            items: this.getItems(10)
+					return scene.rexUI.add.label({
+							width: width,
+							height: height,
+							background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, COLOR_DARK),
+							icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, item.color),
+							text: scene.add.text(0, 0, item.id),
+							space: {
+								icon: 10,
+								left: 15
+							}
+						});
+				},
+			}),
+			topButtons: [
+				this.createButton(this.scene,  'Welt'),
+				this.createButton(this.scene, 'Freunde'),
+				this.createButton(this.scene, 'X')
+			],
+			space: {
+				topButtonsOffset: 20,
+				topButton: 1
+			},
 		}).layout();
 
-		gridTable
+		tabs.on('button.click', function (button, index) {
+			// Highlight button
+			if (this._prevTypeButton) {
+				this._prevTypeButton.getElement('background').setFillStyle(COLOR_DARK)
+			}
+			button.getElement('background').setFillStyle(COLOR_PRIMARY);
+			this._prevTypeButton = button;
+
+			if (index == 2) {
+				// @ts-ignore
+				tabs.hide();
+			}
+
+			// START OF GET ITEMS
+			var data = [];
+			var startIdx = Random(0, 100);
+			for (var i = 0; i < 100; i++) {
+				data.push({
+					id: startIdx + i,
+					color: Random(0, 0xffffff)
+				});
+			}
+			// END OF GET ITEMS
+			console.log(data);
+
+			this.getElement('panel').setItems(data).scrollToTop();
+		}, tabs);
+
+		// Grid table
+		tabs.getElement('panel')
+		.on('cell.click', function (cellContainer, cellIndex) {
+			// Clicked text
+			// this.print.text += cellIndex + ': ' + cellContainer.text + '\n';
+		}, this)
 		.on('cell.over', function (cellContainer, cellIndex) {
 			cellContainer.getElement('background')
 				.setStrokeStyle(2, COLOR_LIGHT)
@@ -118,8 +107,11 @@ export class LeaderboardDialog {
 			cellContainer.getElement('background')
 				.setStrokeStyle(2, COLOR_DARK)
 				.setDepth(0);
-		}, this)
-        //.drawBounds(this.add.graphics(), 0xff0000);
+		}, this);
+
+		tabs.emitButtonClick('top', 0); // Default
+
+		return tabs;
     }
 
     getItems(count) {
@@ -132,5 +124,25 @@ export class LeaderboardDialog {
 			});
 		}
 		return data;
+	}
+
+	createButton(scene, text) {
+		let radius = {
+			tl: 20,
+			tr: 20
+		}
+
+		return scene.rexUI.add.label({
+			width: 50,
+			height: 40,
+			background: scene.rexUI.add.roundRectangle(0, 0, 50, 50, radius, COLOR_DARK),
+			text: scene.add.text(0, 0, text, {
+				fontSize: '18pt'
+			}),
+			space: {
+				left: 10,
+				right: 10
+			}
+		});
 	}
 }

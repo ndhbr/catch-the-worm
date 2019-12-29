@@ -25,14 +25,14 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class LeaderboardScene extends Phaser.Scene {
-    
+
 	translate: Translate;
-	
+
 	leaderboardDialog: LeaderboardDialog;
 
     currentLeaderboard: Leaderboard;
 	leaderboardEntriesGroup: Phaser.GameObjects.Group;
-    
+
     constructor() {
         super(sceneConfig);
     }
@@ -47,27 +47,28 @@ export class LeaderboardScene extends Phaser.Scene {
     public preload(): void {}
 
     public create(data: any): void {
-        // const backdrop = this.add.rectangle(
-        //     this.physics.world.bounds.centerX,
-        //     this.physics.world.bounds.centerY,
-        //     this.physics.world.bounds.width,
-        //     this.physics.world.bounds.height,
-        //     0x0,
-        //     0.3
-        // ).setInteractive();
+        const backdrop = this.add.rectangle(
+            this.physics.world.bounds.centerX,
+            this.physics.world.bounds.centerY,
+            this.physics.world.bounds.width,
+            this.physics.world.bounds.height,
+            0x0,
+            0.3
+        ).setInteractive();
 
-        // const close = Button.generateImageButton(this, 50, 50, 'closeWhite',
-        //     () => {
-        //         this.scene.sleep();
-        //     }
-        // );
-        // close.setDepth(5);
+        const close = Button.generateImageButton(this, 50, 50, 'closeWhite',
+            () => {
+                this.scene.sleep();
+            }
+        );
+        close.setDepth(5);
 
-        // this.addLeaderboardSwitch();
+        this.addLeaderboardSwitch();
 
-		// this.leaderboardEntriesGroup = new Phaser.GameObjects.Group(this);
-		// this.loadLeaderboard(this.currentLeaderboard);
-		this.leaderboardDialog.addLeaderboard();
+		this.leaderboardEntriesGroup = new Phaser.GameObjects.Group(this);
+		this.loadLeaderboard(this.currentLeaderboard);
+
+		// this.leaderboardDialog.addLeaderboard();
 	}
 
     public update(time: number): void {}
@@ -142,7 +143,7 @@ export class LeaderboardScene extends Phaser.Scene {
             entries = await leaderboard.getEntriesAsync(8, 0);
         }
 
-        console.log(entries); 
+        console.log(entries);
 
         for (i = 0; i < entries.length; i++) {
 			this.leaderboardEntriesGroup.add(this.addLeaderboardBadge(this.physics.world.bounds.centerX, currentY, entries[i]));
@@ -168,7 +169,7 @@ export class LeaderboardScene extends Phaser.Scene {
             BADGE_SIZE.HEIGHT,
             BORDER_RADIUS
         );
-        
+
 		let name = new DefaultText(
 			this,
 			BADGE_SIZE.X + 32,
@@ -198,9 +199,11 @@ export class LeaderboardScene extends Phaser.Scene {
 		container.add(score);
 		container.add(ranking);
 
-		const profilePictureKey: string = `profilePicture${leaderboardEntry.getPlayer().getID()}`
+		const profilePictureKey: string = `profilePicture${leaderboardEntry.getPlayer().getID()}`;
 
-		if (!this.textures.exists(profilePictureKey)) {
+		if (!this.textures.exists(`${profilePictureKey}-masked`)) {
+			console.log('Texture does not exist.');
+
 			this.load.on(`filecomplete-image-${profilePictureKey}`,
 			() => {
 				if (container.visible) {
@@ -211,7 +214,9 @@ export class LeaderboardScene extends Phaser.Scene {
 			this.load.image(profilePictureKey, leaderboardEntry.getPlayer().getPhoto());
 			this.load.start();
 		} else {
-            this.addRoundedPlayerPhoto(profilePictureKey, container);
+			console.log('Texture does already exist.');
+
+            this.addRoundedPlayerPhoto(`${profilePictureKey}`, container);
 		}
 
 		return container;
@@ -234,18 +239,23 @@ export class LeaderboardScene extends Phaser.Scene {
 
 		return profilePicture;
     }
-    
+
     private addRoundedPlayerPhoto(profilePictureKey: string,
         container: Phaser.GameObjects.Container) {
 
-        let playerPhoto: Phaser.GameObjects.Image;
-        let photo = this.textures.createCanvas(`${profilePictureKey}-masked`, 44, 44);
-        let source = <HTMLImageElement>this.textures.get(profilePictureKey).getSourceImage();
+		let playerPhoto: Phaser.GameObjects.Image;
 
-        photo.context.beginPath();
-        photo.context.arc(22, 22, 22, 0, Math.PI * 2, false);
-        photo.context.clip();
-        photo.draw(0, 0, source);
+		if (!this.textures.exists(`${profilePictureKey}-masked`)) {
+			let source = <HTMLCanvasElement>this.textures.get(profilePictureKey).getSourceImage();
+			this.textures.remove(profilePictureKey);
+
+			let photo = this.textures.createCanvas(`${profilePictureKey}-masked`, 44, 44);
+
+			photo.context.beginPath();
+			photo.context.arc(22, 22, 22, 0, Math.PI * 2, false);
+			photo.context.clip();
+			photo.draw(0, 0, source);
+		}
 
         playerPhoto = this.add.image(
             BADGE_SIZE.WIDTH/2 - 30,
@@ -254,7 +264,7 @@ export class LeaderboardScene extends Phaser.Scene {
         );
 
         container.add(playerPhoto);
-        
+
         return playerPhoto;
     }
 }
