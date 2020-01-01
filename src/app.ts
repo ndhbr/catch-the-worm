@@ -6,8 +6,9 @@ import { MainMenuScene } from './scenes/main-menu';
 import { LeaderboardScene } from './scenes/leaderboard';
 import { ChooseCharacterScene } from './scenes/choose-character';
 
-import ContainerLitePlugin from 'phaser3-rex-plugins/plugins/containerlite-plugin.js';
-import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
+import { ContinueScene } from './scenes/continue';
+import { LoadingScene } from './scenes/loading';
+import { VignettePipeline } from './shaders/vignette';
 
 // DEBUG URL: https://www.facebook.com/embed/instantgames/2519737888241507/player?game_url=https%3A%2F%2Flocalhost%3A8080
 const DEFAULT_HEIGHT = 720;
@@ -30,22 +31,20 @@ const config: Phaser.Types.Core.GameConfig = {
         }
     },
     scene: [
-        PreloaderScene, MainMenuScene, GameScene, GameOverScene,
-        LeaderboardScene, ChooseCharacterScene
+        PreloaderScene, MainMenuScene, GameScene, ContinueScene,
+        GameOverScene, LeaderboardScene, ChooseCharacterScene,
+        LoadingScene
     ],
 	backgroundColor: '#2b2b2b',
 	render: {
 		pixelArt: false
     },
-    plugins: {
-        scene: [
-            {
-                key: 'rexUI',
-                plugin: UIPlugin,
-                mapping: 'rexUI'
-            }
-        ]
-    }
+    // callbacks: {
+    //     postBoot: game => {
+    //         // @ts-ignore
+    //         let customPipeline = game.renderer.addPipeline('VignettePipeline', new VignettePipeline(game));
+    //     }
+    // }
 };
 
 export class NeonJump extends Phaser.Game {

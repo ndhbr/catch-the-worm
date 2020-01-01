@@ -4,6 +4,8 @@ import { DefaultText } from "../classes/default-text";
 import { Translate } from "../classes/translate";
 import { Colors } from "../colors";
 import { LeaderboardDialog } from "../classes/leaderboard-dialog";
+import { ScoreLib } from "../lib/score";
+import { Animations } from "../lib/animations";
 
 enum Leaderboard {
 	FRIENDS,
@@ -33,6 +35,8 @@ export class LeaderboardScene extends Phaser.Scene {
     currentLeaderboard: Leaderboard;
 	leaderboardEntriesGroup: Phaser.GameObjects.Group;
 
+	recursiveCounter: number;
+
     constructor() {
         super(sceneConfig);
     }
@@ -42,6 +46,7 @@ export class LeaderboardScene extends Phaser.Scene {
 		this.leaderboardDialog = new LeaderboardDialog(this);
 
 		this.currentLeaderboard = Leaderboard.WORLD;
+		this.recursiveCounter = 0;
     }
 
     public preload(): void {}
@@ -53,7 +58,7 @@ export class LeaderboardScene extends Phaser.Scene {
             this.physics.world.bounds.width,
             this.physics.world.bounds.height,
             0x0,
-            0.3
+            0.6
         ).setInteractive();
 
         const close = Button.generateImageButton(this, 50, 50, 'closeWhite',
@@ -105,7 +110,7 @@ export class LeaderboardScene extends Phaser.Scene {
 
 		world.on('pointerdown', () => {
 			if (this.currentLeaderboard !== Leaderboard.WORLD) {
-				// this.sound.play('menuSelect');
+				this.sound.play('menuSelect');
 
 				this.currentLeaderboard = Leaderboard.WORLD;
 				world.setTint(Colors.ACTIVE);
@@ -116,7 +121,7 @@ export class LeaderboardScene extends Phaser.Scene {
 
 		friends.on('pointerdown', () => {
 			if (this.currentLeaderboard !== Leaderboard.FRIENDS) {
-				// this.sound.play('menuSelect');
+				this.sound.play('menuSelect');
 
 				this.currentLeaderboard = Leaderboard.FRIENDS;
 				world.setTint(Colors.DEFAULT);
@@ -130,25 +135,34 @@ export class LeaderboardScene extends Phaser.Scene {
     }
 
     private async loadLeaderboard(scope: Leaderboard) {
-        const leaderboard = await FBInstant.getLeaderboardAsync('global-score');
-        let entries: FBInstant.LeaderboardEntry[];
-        let i: number, currentY: number = 120;
+		if (ScoreLib.globalLeaderboard != null) {	
+			const leaderboard = ScoreLib.globalLeaderboard;
+			let entries: FBInstant.LeaderboardEntry[];
+			let i: number, currentY: number = 120;
+	
+			this.leaderboardEntriesGroup.clear(true, true);
+			this.currentLeaderboard = scope;
+	
+			if (scope === Leaderboard.FRIENDS) {
+				entries = await leaderboard.getConnectedPlayerEntriesAsync(8, 0);
+			} else {
+				entries = await leaderboard.getEntriesAsync(8, 0);
+			}
+	
+			for (i = 0; i < entries.length; i++) {
+				this.leaderboardEntriesGroup.add(this.addLeaderboardBadge(this.physics.world.bounds.centerX, currentY, entries[i]));
+				currentY += 64;
+			}
+		} else {
+			if (this.recursiveCounter < 10) {
+				try {
+					await ScoreLib.loadLeaderboards();
 
-        this.leaderboardEntriesGroup.clear(true, true);
-        this.currentLeaderboard = scope;
-
-        if (scope === Leaderboard.FRIENDS) {
-            entries = await leaderboard.getConnectedPlayerEntriesAsync(8, 0);
-        } else {
-            entries = await leaderboard.getEntriesAsync(8, 0);
-        }
-
-        console.log(entries);
-
-        for (i = 0; i < entries.length; i++) {
-			this.leaderboardEntriesGroup.add(this.addLeaderboardBadge(this.physics.world.bounds.centerX, currentY, entries[i]));
-            currentY += 64;
-        }
+					this.recursiveCounter++;
+					this.loadLeaderboard(scope);
+				} catch (error) {}
+			}
+		}
     }
 
     private addLeaderboardBadge(x: number, y: number,
@@ -202,8 +216,6 @@ export class LeaderboardScene extends Phaser.Scene {
 		const profilePictureKey: string = `profilePicture${leaderboardEntry.getPlayer().getID()}`;
 
 		if (!this.textures.exists(`${profilePictureKey}-masked`)) {
-			console.log('Texture does not exist.');
-
 			this.load.on(`filecomplete-image-${profilePictureKey}`,
 			() => {
 				if (container.visible) {
@@ -214,10 +226,10 @@ export class LeaderboardScene extends Phaser.Scene {
 			this.load.image(profilePictureKey, leaderboardEntry.getPlayer().getPhoto());
 			this.load.start();
 		} else {
-			console.log('Texture does already exist.');
-
             this.addRoundedPlayerPhoto(`${profilePictureKey}`, container);
 		}
+
+        Animations.weirdFadeIn(this, container);
 
 		return container;
 	}
@@ -249,10 +261,10 @@ export class LeaderboardScene extends Phaser.Scene {
 			let source = <HTMLCanvasElement>this.textures.get(profilePictureKey).getSourceImage();
 			this.textures.remove(profilePictureKey);
 
-			let photo = this.textures.createCanvas(`${profilePictureKey}-masked`, 44, 44);
+			let photo = this.textures.createCanvas(`${profilePictureKey}-masked`, source.width, source.height);
 
 			photo.context.beginPath();
-			photo.context.arc(22, 22, 22, 0, Math.PI * 2, false);
+			photo.context.arc(source.height / 2, source.height / 2, source.height / 2, 0, Math.PI * 2, false);
 			photo.context.clip();
 			photo.draw(0, 0, source);
 		}
@@ -261,9 +273,12 @@ export class LeaderboardScene extends Phaser.Scene {
             BADGE_SIZE.WIDTH/2 - 30,
 			BADGE_SIZE.Y + 28,
 			`${profilePictureKey}-masked`
-        );
+		);
+		playerPhoto.setDisplaySize(44, 44);
 
         container.add(playerPhoto);
+
+        Animations.weirdFadeIn(this, playerPhoto);
 
         return playerPhoto;
     }

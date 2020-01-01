@@ -20,6 +20,8 @@ export class Button {
         button.setInteractive();
 
         button.on('pointerdown', () => {
+            scene.sound.play('menuSelect');
+
             button.setTint(Colors.ACTIVE);
 		}, this);
 
@@ -34,7 +36,7 @@ export class Button {
     }
 
     public static generateImageButton(scene: Phaser.Scene, x: number, y: number,
-        key: string, callback: () => void): Phaser.GameObjects.Sprite {
+        key: string, callback: () => void, isSpritesheet?: boolean): Phaser.GameObjects.Sprite {
         const button = scene.add.sprite(
             x,
             y,
@@ -46,10 +48,17 @@ export class Button {
 
         button.on('pointerdown', () => {
             button.setTint(Colors.ACTIVE);
+            scene.sound.play('menuSelect');
+
+            if (isSpritesheet)
+                button.setFrame(1);
 		}, this);
 
 		button.on('pointerup', () => {
             button.clearTint();
+
+            if (isSpritesheet)
+                button.setFrame(0);
             
 			// this.scene.sound.play('menuSelect');
 			callback();

@@ -87,7 +87,6 @@ export class LeaderboardDialog {
 				});
 			}
 			// END OF GET ITEMS
-			console.log(data);
 
 			this.getElement('panel').setItems(data).scrollToTop();
 		}, tabs);

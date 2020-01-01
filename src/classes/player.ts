@@ -1,5 +1,4 @@
 import { Side } from "./dynamic-spikes";
-import { runInThisContext } from "vm";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
 
@@ -11,12 +10,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         y: number
     };
 
-    constructor(scene: Phaser.Scene, gameAreaBounds: Phaser.Geom.Rectangle) {
+    constructor(scene: Phaser.Scene, gameAreaBounds: Phaser.Geom.Rectangle,
+        playerKey: string) {
         super(
             scene,
             -100,
             -100,
-            'player-red',
+            playerKey,
             0
         );
 
@@ -36,8 +36,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             speed: 100,
             lifespan: 1000,
             scale: { start: 0.5, end: 0 },
-            tint: 0x0,
-            alpha: 0.2,
+            tint: 0x000000,
+            alpha: 0.1,
+            quantity: 1,
+            frequency: 50,
             bounds: {
                 x: gameAreaBounds.left,
                 y: gameAreaBounds.top,
@@ -50,13 +52,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.setDepth(5);
         this.createAnimation();
-        this.anims.play('player-red');
+        this.anims.play(this.texture.key);
     }
 
     createAnimation() {
         this.scene.anims.create({
-			key: 'player-red',
-			frames: this.scene.anims.generateFrameNumbers('player-red', {start: 0, end: 2}),
+			key: this.texture.key,
+			frames: this.scene.anims.generateFrameNumbers(this.texture.key, {start: 0, end: 2}),
 			frameRate: 24,
 			repeat: -1
 		});
@@ -69,8 +71,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     resetPosition() {
         this.setVelocity(0, 0);
         this.flipX = false;
+        this.setGravity(0, 0);
         this.startVelocity = Math.abs(this.startVelocity);
         this.setPosition(this.startPosition.x, this.startPosition.y);    
+    }
+
+    reset() {
+        this.resetPosition();
+
+        this.clearTint();
+        this.emitter.start();
+        this.setBounce(0, 0);
     }
 
     getDirection(): Side {

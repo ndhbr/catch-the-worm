@@ -11,8 +11,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "phaser": "^3.21.0",
-        "phaser3-rex-plugins": "^1.1.4"
+        "phaser": "^3.21.0"
     },
     "devDependencies": {
         "@types/facebook-instant-games": "^6.3.1",

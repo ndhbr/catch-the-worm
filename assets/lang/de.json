@@ -1,16 +1,31 @@
 {
     "MAIN_MENU": {
-        "PLAY": "Spielen",
-        "SELECT_CHARACTER": "Spieler auswählen",
-        "LEADERBOARD": "Bestenliste"
     },
     "GAME_OVER": {
-        "CONTINUE": "Fortsetzen (nach Video)",
-        "PLAY_AGAIN": "Nochmal spielen",
-        "MENU": "Menü"
+        "MENU": "Menü",
+        "BEAT_TEXT_1": "Schlage",
+        "BEAT_TEXT_2": "mit"
+    },
+    "CONTINUE": {
+        "HEADING": "Weiterspielen?",
+        "CANCEL": "Nein danke!"
     },
     "LEADERBOARD": {
         "WORLD": "Welt",
         "FRIENDS": "Freunde"
+    },
+    "LOADING": {
+        "LOADING": "Laden..."
+    },
+    "PLAYER_SWITCH": {
+        "WORMS_NEEDED": "Sammle mehr Würmer, um diesen Charakter freizuschalten.",
+        "CATCH_MORE_1": "Sammle",
+        "CATCH_MORE_2": "Würmer, um diesen Charakter freizuschalten.",
+        "BUY_NOW_1": "Jetzt für ",
+        "BUY_NOW_2": " Würmer freischalten?",
+        "COMING_SOON": "Kommt bald!"
+    },
+    "SHARE": {
+        "SHARE": "Ich wette du kommst nicht so weit. Komm und schlag mich!"
     }
 }

@@ -1,0 +1,30 @@
+{
+    "MAIN_MENU": {
+    },
+    "GAME_OVER": {
+        "BEAT_TEXT_1": "Beat",
+        "BEAT_TEXT_2": "with"
+    },
+    "CONTINUE": {
+        "HEADING": "Continue playing?",
+        "CANCEL": "No, thanks!"
+    },
+    "LEADERBOARD": {
+        "WORLD": "World",
+        "FRIENDS": "Friends"
+    },
+    "LOADING": {
+        "LOADING": "Loading..."
+    },
+    "PLAYER_SWITCH": {
+        "WORMS_NEEDED": "Collect more Worms, in order to unlock this character.",
+        "CATCH_MORE_1": "Collect",
+        "CATCH_MORE_2": "Worms to unlock this character.",
+        "BUY_NOW_1": "Unlock for ",
+        "BUY_NOW_2": " Worms?",
+        "COMING_SOON": "Coming soon!"
+    },
+    "SHARE": {
+        "SHARE": "I bet you do not get this far. Try to defeat me!"
+    }
+}

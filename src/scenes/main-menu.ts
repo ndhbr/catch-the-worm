@@ -4,6 +4,13 @@ import { GameArea } from "../classes/game-area";
 import { StaticSpikes } from "../classes/static-spikes";
 import { Button } from "../classes/button";
 import { Backdrop } from "../classes/backdrop";
+import { DefaultText } from "../classes/default-text";
+import { ScoreLib } from "../lib/score";
+import { FbStatsLib } from "../lib/fb-stats";
+import { PlayerSwitch } from "../classes/player-switch";
+import { FbAdsLib } from "../lib/fb-ads";
+import { Animations } from "../lib/animations";
+import { Base64Images } from "../lib/base64";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -15,6 +22,11 @@ export class MainMenuScene extends Phaser.Scene {
 
     translate: Translate;
 
+    playerSwitch: PlayerSwitch;
+
+    wormsKilled: DefaultText;
+    highscore: DefaultText;
+
     constructor() {
         super(sceneConfig);
     }
@@ -25,10 +37,11 @@ export class MainMenuScene extends Phaser.Scene {
 
     public preload(): void {}
 
-    public create(data: any): void {
+    public async create(data: any): Promise<void> {
         let background = new Background(this);
         let gameArea = new GameArea(this);
         let staticSpikes = new StaticSpikes(this, gameArea.getBounds());
+        this.playerSwitch = new PlayerSwitch(this);
 
         Backdrop.add(this);
 
@@ -39,41 +52,59 @@ export class MainMenuScene extends Phaser.Scene {
         );
         logo.setOrigin(0.5, 0.5);
         logo.setDepth(4);
+        logo.setScale(0.5);
 
-        Button.generate(
+        Button.generateImageButton(
             this,
-            this.physics.world.bounds.centerX,
-            this.physics.world.bounds.bottom - 250,
-            this.translate.localise('MAIN_MENU', 'PLAY'),
-            () => {
-                this.scene.start('Game');
-            }
-        );
-
-        Button.generate(
-            this,
-            this.physics.world.bounds.centerX,
-            this.physics.world.bounds.bottom - 200,
-            this.translate.localise('MAIN_MENU', 'SELECT_CHARACTER'),
-            () => {
-                this.launchScene('ChooseCharacter');
-            }
-        );
-
-        Button.generate(
-            this,
-            this.physics.world.bounds.centerX,
+            this.physics.world.bounds.centerX - 84,
             this.physics.world.bounds.bottom - 150,
-            this.translate.localise('MAIN_MENU', 'LEADERBOARD'),
+            'buttonPlay',
+            () => {
+                this.scene.start('Game', {playerKey: this.playerSwitch.getSelectedSpriteKey()});
+            },
+            true
+        ).setDepth(5);
+
+        Button.generateImageButton(
+            this,
+            this.physics.world.bounds.centerX + 84,
+            this.physics.world.bounds.bottom - 150,
+            'buttonLeaderboard',
             () => {
                 this.launchScene('Leaderboard');
-            }
-        );
+            },
+            true
+        ).setDepth(4);
+
+        Button.generateImageButton(
+            this,
+            this.physics.world.bounds.centerX,
+            this.physics.world.bounds.bottom - 75,
+            'buttonShare',
+            async () => {
+                await FBInstant.shareAsync({
+                    intent: 'SHARE',
+                    image: Base64Images.getShareImage(),
+                    text: this.translate.localise('SHARE', 'SHARE')
+                })
+            },
+            true
+        ).setDepth(4).setScale(0.7);
 
         this.add.existing(background);
         this.add.existing(gameArea);
+        this.add.existing(this.playerSwitch);
 
         staticSpikes.addSpikes();
+
+        this.addCopyright();
+
+        await ScoreLib.loadLeaderboards();
+        this.addStats();
+
+        this.events.on('bought-character', (newWormCount: number) => {
+            this.loadStats();
+        });
     }
 
     public update(time: number): void {} 
@@ -84,5 +115,64 @@ export class MainMenuScene extends Phaser.Scene {
         } else {
             this.scene.launch(key);
         }
+    }
+
+    private addCopyright() {
+		const copyright = new DefaultText(
+			this,
+			this.physics.world.bounds.centerX,
+			this.physics.world.bounds.bottom - 19,
+			'Made with love by ndhbr.de',
+			24
+		);
+		copyright.setOrigin(0.5, 0.5);
+		copyright.setTint(0x888888);
+    }
+
+    private async addStats() {
+        const padding = 10;
+        const fontSize = 32;
+        const startX = 50;
+        let y = 225;
+
+        const highscoreIcon = this.add.sprite(
+            startX,
+            y,
+            'highscoreIcon'
+        ).setDepth(4);
+
+        this.highscore = new DefaultText(
+            this, highscoreIcon.getBounds().right + padding, y,
+            '', fontSize
+        ).setOrigin(0, 0.5);
+
+        y += 44;
+
+        const wormsKilledIcon = this.add.sprite(
+            startX, y,
+            'wormsIcon'
+        ).setDepth(4);
+
+        this.wormsKilled = new DefaultText(
+            this, wormsKilledIcon.getBounds().right + padding, y,
+            '', fontSize, 0
+        ).setOrigin(0, 0.5);
+
+        this.loadStats();
+
+        Animations.fadeIn(this, highscoreIcon);
+        Animations.fadeIn(this, wormsKilledIcon);
+    }
+
+    private async loadStats() {
+        const worms = await FbStatsLib.getWormsCatched();
+
+        this.highscore.setText(await ScoreLib.getGlobalScore() + '');
+        this.wormsKilled.setText(worms + '');
+
+        Animations.fadeIn(this, this.highscore);
+        Animations.fadeIn(this, this.wormsKilled);
+
+        this.playerSwitch.addWormsCatched(worms);
     }
 }

@@ -7,6 +7,10 @@ import { DynamicSpikes, Side } from "../classes/dynamic-spikes";
 import { Controls } from "../classes/controls";
 import { Score } from "../classes/score";
 import { Colors } from "../colors";
+import { Worm } from "../classes/worm";
+import { ScoreLib } from "../lib/score";
+import { FbStatsLib } from "../lib/fb-stats";
+import { FbAdsLib } from "../lib/fb-ads";
 
 const GRAVITY_Y = 800;
 
@@ -20,6 +24,7 @@ export class GameScene extends Phaser.Scene {
 
     player: Player;
     score: Score;
+    wormsCatched: number;
 
     staticSpikesCollider: Phaser.Physics.Arcade.Collider;
 
@@ -31,6 +36,7 @@ export class GameScene extends Phaser.Scene {
 
     public init(data: any): void {
         this.isGameOver = false;
+        this.wormsCatched = 0;
         // this.cameras.main.zoom = 0.8 ;
     }
 
@@ -39,20 +45,23 @@ export class GameScene extends Phaser.Scene {
     public create(data: any): void {
         let background = new Background(this);
         let gameArea = new GameArea(this);
-        this.player = new Player(this, gameArea.getBounds());
+        this.player = new Player(this, gameArea.getBounds(), data.playerKey);
         let staticSpikes = new StaticSpikes(this, gameArea.getBounds());
         let leftSpikes = new DynamicSpikes(this, Side.LEFT, gameArea.getBounds());
         let rightSpikes = new DynamicSpikes(this, Side.RIGHT, gameArea.getBounds());
         let scoreWall = new ScoreWall(this, gameArea.getBounds());
         let controls = new Controls(this);
+        let worm = new Worm(this, gameArea.getBounds());
         this.score = new Score(this, 0);
         this.score.syncWithLeaderboards();
 
         this.add.existing(background);
         this.add.existing(gameArea);
         this.add.existing(this.player);
+        this.add.existing(worm);
 
         this.physics.add.existing(this.player, false);
+        this.physics.add.existing(worm, false);
 
         staticSpikes.addSpikes();
         leftSpikes.addSpikes();
@@ -64,15 +73,19 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(leftSpikes, this.player, this.gameOver.bind(this));
         this.physics.add.collider(rightSpikes, this.player, this.gameOver.bind(this));
 
+        let spikeNumber: number = leftSpikes.getMinSpikeCount();
         this.physics.add.collider(scoreWall, this.player, () => {
             if (!this.isGameOver) {
+                this.sound.play('hit');
+                wormCatchAllowed = true;
+
                 let side: Side = this.player.switchDirection();
-                let spikeNumber: number = 3;
+                
                 const currentScore = this.score.getScore();
     
-                if (currentScore > 1 && currentScore % 10  == 0 &&
+                if (currentScore > 1 && (currentScore % 10) == 0 &&
                     spikeNumber < leftSpikes.getMaxSpikeCount()) {
-                    spikeNumber += 1; // TODO
+                    spikeNumber += 1;
                 }
     
                 if (side === Side.LEFT) {
@@ -82,11 +95,16 @@ export class GameScene extends Phaser.Scene {
                     rightSpikes.showSpikes(spikeNumber);
                     leftSpikes.hideSpikes();
                 }
+
+                if (worm.isDead())
+                    worm.setSide(side);
     
                 this.score.incrementScore();
     
                 this.cameras.main.shake(100, 0.01);
-                window.navigator.vibrate(100);
+
+                // if ("vibrate" in navigator)
+                    // window.navigator.vibrate(100);
     
                 let color = this.getRandomColor();
                 background.fillColor = color;
@@ -96,35 +114,62 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
+        let wormCatchAllowed: boolean = true;
+        this.physics.add.overlap(worm, this.player, () => {
+            if (wormCatchAllowed) {
+                wormCatchAllowed = false;
+                this.sound.play('worm');
+                worm.die();
+                this.wormsCatched++;
+            }
+        });
+
         controls.addJumpControl(() => {
             if (!this.isGameOver) {
+                this.sound.play('jump');
                 this.score.showScore();
                 this.player.setGravity(0, GRAVITY_Y);
                 this.player.jump();
             }
         });
+
+		this.scene.get('Continue').events.on('continue-game', () => {
+            leftSpikes.hideSpikes();
+            rightSpikes.hideSpikes();
+
+            this.score.hideScore();
+            this.score.setVisible(true);
+
+            this.staticSpikesCollider.active = true;
+
+            this.player.reset();
+
+            this.isGameOver = false;
+        });
     }
 
     public update(time: number): void {
-        let speed = this.player.body.velocity.y;
-
-        if (!this.isGameOver) {
-            speed /= 1000;
-        } else {
-            speed /= 10;
-        }
+        let vector = new Phaser.Math.Vector2(
+            this.player.body.velocity.x,
+            this.player.body.velocity.y / 3
+        );
+        let angle = vector.angle();
 
         if (this.player.getDirection() === Side.RIGHT)
-            this.player.setRotation(speed);
+            this.player.setRotation(angle);
         else
-            this.player.setRotation(-speed);
+            this.player.setRotation(angle - Math.PI);
     }
 
     private gameOver() {
         if (!this.isGameOver) {
             this.isGameOver = true;
+
+            this.sound.play('death');
             this.cameras.main.shake(250, 0.03);
-            window.navigator.vibrate(250);
+
+            // if ("vibrate" in navigator)
+                // window.navigator.vibrate(250);
     
             this.player.setTint(0x555555);
             this.player.emitter.stop();
@@ -135,7 +180,14 @@ export class GameScene extends Phaser.Scene {
             this.score.setVisible(false);
             this.score.commitScore();
 
-            this.scene.launch('GameOver', {score: this.score.getScore()});
+            ScoreLib.setScore(this.score.getScore());
+            FbStatsLib.incrementWormsCatched(this.wormsCatched);
+
+            if (FbAdsLib.rewardedVideo != null) {
+                this.scene.launch('Continue', {score: this.score.getScore()});
+            } else {
+                this.scene.launch('GameOver', {score: this.score.getScore()});
+            }
         }
     }
 

@@ -12,5 +12,6 @@ export class GameArea extends Phaser.GameObjects.Rectangle {
         );
 
         this.setOrigin(0.5, 0);
+        // this.setPipeline('VignettePipeline');
     }
 }

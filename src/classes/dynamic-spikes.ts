@@ -8,8 +8,6 @@ export enum Side {
 
 export class DynamicSpikes extends Phaser.Physics.Arcade.Group {
 
-    private maxSpikes: number;
-
     constructor(public scene: Phaser.Scene, public side: Side,
         public gameAreaBounds: Phaser.Geom.Rectangle) {
         super(scene.physics.world, scene, {
@@ -68,8 +66,6 @@ export class DynamicSpikes extends Phaser.Physics.Arcade.Group {
 
             body.setSize(body.width / 2, body.height / 2, true);
         });
-        
-        this.maxSpikes = numberSpikes;
     }
 
     showSpikes(spikeNumber: number) {
@@ -111,7 +107,11 @@ export class DynamicSpikes extends Phaser.Physics.Arcade.Group {
         });
     }
 
+    getMinSpikeCount() {
+        return Math.floor(this.getLength() * 0.3);
+    }
+
     getMaxSpikeCount() {
-        return Math.floor(this.maxSpikes * .75);
+        return Math.floor(this.getLength() * 0.75);
     }
 }
