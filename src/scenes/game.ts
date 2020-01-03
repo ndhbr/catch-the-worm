@@ -11,6 +11,9 @@ import { Worm } from "../classes/worm";
 import { ScoreLib } from "../lib/score";
 import { FbStatsLib } from "../lib/fb-stats";
 import { FbAdsLib } from "../lib/fb-ads";
+import { DefaultText } from "../classes/default-text";
+import { Translate } from "../classes/translate";
+import { Animations } from "../lib/animations";
 
 const GRAVITY_Y = 800;
 
@@ -22,11 +25,16 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 
 export class GameScene extends Phaser.Scene {
 
+    translate: Translate;
+
     player: Player;
     score: Score;
     wormsCatched: number;
+    wormCatchAllowed: boolean;
 
     staticSpikesCollider: Phaser.Physics.Arcade.Collider;
+
+    hint: DefaultText;
 
     isGameOver: boolean;
 
@@ -35,9 +43,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     public init(data: any): void {
+        this.translate = new Translate(this);
         this.isGameOver = false;
         this.wormsCatched = 0;
         // this.cameras.main.zoom = 0.8 ;
+        this.setWormCatchAllowed(true);
     }
 
     public preload(): void {}
@@ -77,7 +87,6 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(scoreWall, this.player, () => {
             if (!this.isGameOver) {
                 this.sound.play('hit');
-                wormCatchAllowed = true;
 
                 let side: Side = this.player.switchDirection();
                 
@@ -96,16 +105,15 @@ export class GameScene extends Phaser.Scene {
                     leftSpikes.hideSpikes();
                 }
 
-                if (worm.isDead())
+                if (worm.isDead()) {
+                    this.setWormCatchAllowed(true);
                     worm.setSide(side);
+                }
     
                 this.score.incrementScore();
     
                 this.cameras.main.shake(100, 0.01);
 
-                // if ("vibrate" in navigator)
-                    // window.navigator.vibrate(100);
-    
                 let color = this.getRandomColor();
                 background.fillColor = color;
                 scoreWall.children.each((wall: Phaser.GameObjects.Rectangle) => {
@@ -114,12 +122,15 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        let wormCatchAllowed: boolean = true;
         this.physics.add.overlap(worm, this.player, () => {
-            if (wormCatchAllowed) {
-                wormCatchAllowed = false;
+            if (this.wormCatchAllowed) {
+                this.setWormCatchAllowed(false);
+
                 this.sound.play('worm');
                 worm.die();
+
+                console.log('Catched Worm');
+                
                 this.wormsCatched++;
             }
         });
@@ -128,14 +139,19 @@ export class GameScene extends Phaser.Scene {
             if (!this.isGameOver) {
                 this.sound.play('jump');
                 this.score.showScore();
+
                 this.player.setGravity(0, GRAVITY_Y);
                 this.player.jump();
             }
+
+            this.hint.setVisible(false);
         });
 
 		this.scene.get('Continue').events.on('continue-game', () => {
             leftSpikes.hideSpikes();
             rightSpikes.hideSpikes();
+
+            this.showHint();
 
             this.score.hideScore();
             this.score.setVisible(true);
@@ -146,6 +162,8 @@ export class GameScene extends Phaser.Scene {
 
             this.isGameOver = false;
         });
+
+        this.addHint();
     }
 
     public update(time: number): void {
@@ -196,5 +214,28 @@ export class GameScene extends Phaser.Scene {
         const random = Phaser.Math.Between(0, colors.length - 1);
 
         return colors[random];
+    }
+
+    private addHint() {
+        this.hint = new DefaultText(
+            this,
+            this.physics.world.bounds.centerX,
+            this.physics.world.bounds.centerY - 128,
+            this.translate.localise('GAME', 'HINT'),
+            32,
+            1
+        ).setOrigin(0.5, 0.5);
+
+        this.hint.setMaxWidth(this.physics.world.bounds.width * 0.8);
+
+        this.showHint();
+    }
+
+    private showHint() {
+        Animations.fadeIn(this, this.hint, 250);
+    }
+
+    private setWormCatchAllowed(allowed: boolean) {
+        this.wormCatchAllowed = allowed;
     }
 }

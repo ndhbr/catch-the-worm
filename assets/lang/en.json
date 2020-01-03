@@ -1,6 +1,9 @@
 {
     "MAIN_MENU": {
     },
+    "GAME": {
+        "HINT": "Tap to jump..."
+    },
     "GAME_OVER": {
         "BEAT_TEXT_1": "Beat",
         "BEAT_TEXT_2": "with"

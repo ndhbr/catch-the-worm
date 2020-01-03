@@ -52,6 +52,9 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.spritesheet('buttonHome', 'assets/home-button.png',
             { frameWidth: 128, frameHeight: 64 });
 
+        this.load.spritesheet('buttonCompete', 'assets/compete-button.png',
+            { frameWidth: 128, frameHeight: 64 });
+
         this.load.spritesheet('buttonTheFloorIsLava', 'assets/the-floor-is-lava-button.png',
             { frameWidth: 128, frameHeight: 64 });
 
@@ -94,8 +97,6 @@ export class PreloaderScene extends Phaser.Scene {
 				break;
         }
         
-        language = 'en';
-
 		this.load.json('language-file', `assets/lang/${language}.json`);
     }
 }

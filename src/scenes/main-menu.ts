@@ -11,6 +11,7 @@ import { PlayerSwitch } from "../classes/player-switch";
 import { FbAdsLib } from "../lib/fb-ads";
 import { Animations } from "../lib/animations";
 import { Base64Images } from "../lib/base64";
+import { FbDataLib } from "../lib/fb-data";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -78,7 +79,7 @@ export class MainMenuScene extends Phaser.Scene {
 
         Button.generateImageButton(
             this,
-            this.physics.world.bounds.centerX,
+            this.physics.world.bounds.centerX + 55,
             this.physics.world.bounds.bottom - 75,
             'buttonShare',
             async () => {
@@ -87,6 +88,17 @@ export class MainMenuScene extends Phaser.Scene {
                     image: Base64Images.getShareImage(),
                     text: this.translate.localise('SHARE', 'SHARE')
                 })
+            },
+            true
+        ).setDepth(4).setScale(0.7);
+
+        Button.generateImageButton(
+            this,
+            this.physics.world.bounds.centerX - 55,
+            this.physics.world.bounds.bottom - 75,
+            'buttonCompete',
+            async () => {
+                await FbDataLib.inviteFriends();
             },
             true
         ).setDepth(4).setScale(0.7);

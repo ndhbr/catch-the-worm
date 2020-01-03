@@ -1,6 +1,9 @@
 {
     "MAIN_MENU": {
     },
+    "GAME": {
+        "HINT": "Berühren um zu springen..."
+    },
     "GAME_OVER": {
         "MENU": "Menü",
         "BEAT_TEXT_1": "Schlage",

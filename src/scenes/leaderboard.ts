@@ -229,7 +229,7 @@ export class LeaderboardScene extends Phaser.Scene {
             this.addRoundedPlayerPhoto(`${profilePictureKey}`, container);
 		}
 
-        Animations.weirdFadeIn(this, container);
+		Animations.weirdFadeIn(this, container);
 
 		return container;
 	}

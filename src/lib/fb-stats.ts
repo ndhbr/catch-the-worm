@@ -5,9 +5,13 @@ export class FbStatsLib {
     public static wormsCatched: number;
     
     public static async incrementWormsCatched(wormCount: number) {
+        console.log(wormCount);
+        
         try {
             let result = await FBInstant.player.incrementStatsAsync({'wormsCatched': wormCount});
         
+            console.log(result);
+
             if (result != null)
                 this.wormsCatched = result.wormsCatched;
         } catch (error) {

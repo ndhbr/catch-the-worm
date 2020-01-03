@@ -6,6 +6,7 @@ import { FbAdsLib } from "../lib/fb-ads";
 import { ScoreLib } from "../lib/score";
 import { Animations } from "../lib/animations";
 import { Base64Images } from "../lib/base64";
+import { FbDataLib } from "../lib/fb-data";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -104,6 +105,8 @@ export class GameOverScene extends Phaser.Scene {
         ).setDepth(4).setScale(0.7);
 
         this.addBeatScore();
+        FbDataLib.createShortcut();
+        FbDataLib.inviteFriends();
     }
 
     public update(time: number): void {}

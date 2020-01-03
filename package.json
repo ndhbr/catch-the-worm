@@ -1,14 +1,14 @@
 {
-    "name": "neon-jump",
-    "version": "1.0.0",
-    "description": "Neon Jump",
+    "name": "catch-the-worm",
+    "version": "1.0.1",
+    "description": "Catch The Worm",
     "main": "index.html",
     "scripts": {
         "build": "webpack --mode development",
         "start": "webpack-dev-server --hot",
         "prod": "webpack --mode production"
     },
-    "author": "",
+    "author": "Andreas Huber",
     "license": "ISC",
     "dependencies": {
         "phaser": "^3.21.0"
