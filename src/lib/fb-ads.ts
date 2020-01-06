@@ -54,6 +54,7 @@ export class FbAdsLib {
             (this.scoreCount > 1 && this.scoreCount % 75 == 0 ))) {
             try {
                 await this.interstitial.showAsync();
+                this.interstitial == null;
             } catch (error) {
                 console.error(error);
 
@@ -74,6 +75,7 @@ export class FbAdsLib {
         if (this.rewardedVideo != null) {
             try {
                 await this.rewardedVideo.showAsync();
+                this.rewardedVideo == null;
             } catch (error) {
                 console.error(error);
 
