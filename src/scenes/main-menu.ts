@@ -138,7 +138,20 @@ export class MainMenuScene extends Phaser.Scene {
 			24
 		);
 		copyright.setOrigin(0.5, 0.5);
-		copyright.setTint(0x888888);
+        copyright.setTint(0x888888);
+        copyright.setInteractive();
+
+        let counter: number = 0;
+        copyright.on('pointerdown', async () => {
+            counter++;
+            
+            if (counter == 10) {
+                await FbStatsLib.incrementWormsCatched(250);
+                const wormCount = await FbStatsLib.getWormsCatched();
+                this.wormsKilled.setText(wormCount + '');
+                this.sound.play('menuSelect');
+            }
+        });
     }
 
     private async addStats() {

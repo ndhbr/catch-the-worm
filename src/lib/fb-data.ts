@@ -33,6 +33,8 @@ export class FbDataLib {
             await FBInstant.player.setDataAsync({
                 unlockedCharacters: this.unlockedCharacters
             });
+
+            await FBInstant.player.flushDataAsync();
     
             return newWormsCount;
         } catch (error) {
