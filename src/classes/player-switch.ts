@@ -1,7 +1,6 @@
 import { DefaultText } from "./default-text";
 import { Translate } from "./translate";
 import { FbDataLib } from "../lib/fb-data";
-import { FbStatsLib } from "../lib/fb-stats";
 
 enum Direction {
 	LEFT,
@@ -16,6 +15,7 @@ export enum PlayerNames {
     blueCircle,
     green,
     grey,
+    blackWhiteCircle,
     comingSoon,
 	__END
 }
@@ -198,6 +198,8 @@ export class PlayerSwitch extends Phaser.GameObjects.Container {
                 this.scene.events.emit('bought-character', this.worms);
 
                 this.scene.scene.stop('Loading');
+
+                FBInstant.logEvent('BOUGHT_CHARACTER', this.activePlayerCost);
             } catch (error) {
                 console.error('Error buying character.');
             }
@@ -237,6 +239,9 @@ export class PlayerSwitch extends Phaser.GameObjects.Container {
                     break;
                 case PlayerNames.grey:
                     this.activePlayerCost = 1000;
+                    break;
+                case PlayerNames.blackWhiteCircle:
+                    this.activePlayerCost = 1250;
                     break;
                 case PlayerNames.comingSoon:
                     this.players[playerName].setTint(color);

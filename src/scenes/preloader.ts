@@ -32,6 +32,9 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.spritesheet('player-grey', 'assets/player-grey.png',
             { frameWidth: 32, frameHeight: 32 });
 
+        this.load.spritesheet('player-blackWhiteCircle', 'assets/player-black-white-circle.png',
+            { frameWidth: 32, frameHeight: 32 });
+
         this.load.image('player-comingSoon', 'assets/player-comingSoon.png');
 
         this.load.spritesheet('worm', 'assets/worm-alt.png',

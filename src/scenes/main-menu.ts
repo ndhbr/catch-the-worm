@@ -144,7 +144,7 @@ export class MainMenuScene extends Phaser.Scene {
         copyright.setInteractive();
 
         let counter: number = 0;
-        copyright.on('pointerdown', async () => {
+        copyright.on('pointerdown', async () => { // easter egg
             counter++;
             
             if (counter == 10) {
@@ -152,6 +152,7 @@ export class MainMenuScene extends Phaser.Scene {
                 const wormCount = await FbStatsLib.getWormsCatched();
                 this.wormsKilled.setText(wormCount + '');
                 this.sound.play('menuSelect');
+                FBInstant.logEvent('TRIGGERED_EASTER_EGG', 1);
             }
         });
     }
