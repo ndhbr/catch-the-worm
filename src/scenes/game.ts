@@ -14,6 +14,7 @@ import { FbAdsLib } from "../lib/fb-ads";
 import { DefaultText } from "../classes/default-text";
 import { Translate } from "../classes/translate";
 import { Animations } from "../lib/animations";
+import { Vignette } from "../classes/vignette";
 
 const GRAVITY_Y = 800;
 
@@ -62,6 +63,8 @@ export class GameScene extends Phaser.Scene {
         let scoreWall = new ScoreWall(this, gameArea.getBounds());
         let controls = new Controls(this);
         let worm = new Worm(this, gameArea.getBounds());
+        let vignette = new Vignette(this);
+        vignette.add();
         this.score = new Score(this, 0);
         this.score.syncWithLeaderboards();
 

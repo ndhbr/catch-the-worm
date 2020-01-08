@@ -12,6 +12,7 @@ import { FbAdsLib } from "../lib/fb-ads";
 import { Animations } from "../lib/animations";
 import { Base64Images } from "../lib/base64";
 import { FbDataLib } from "../lib/fb-data";
+import { Vignette } from "../classes/vignette";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -42,6 +43,7 @@ export class MainMenuScene extends Phaser.Scene {
         let background = new Background(this);
         let gameArea = new GameArea(this);
         let staticSpikes = new StaticSpikes(this, gameArea.getBounds());
+        let vignette = new Vignette(this).add();
         this.playerSwitch = new PlayerSwitch(this);
 
         Backdrop.add(this);
@@ -52,7 +54,7 @@ export class MainMenuScene extends Phaser.Scene {
             'heading'
         );
         logo.setOrigin(0.5, 0.5);
-        logo.setDepth(4);
+        logo.setDepth(5);
         logo.setScale(0.5);
 
         Button.generateImageButton(
@@ -75,7 +77,7 @@ export class MainMenuScene extends Phaser.Scene {
                 this.launchScene('Leaderboard');
             },
             true
-        ).setDepth(4);
+        ).setDepth(5);
 
         Button.generateImageButton(
             this,
@@ -90,7 +92,7 @@ export class MainMenuScene extends Phaser.Scene {
                 })
             },
             true
-        ).setDepth(4).setScale(0.7);
+        ).setDepth(5).setScale(0.7);
 
         Button.generateImageButton(
             this,
@@ -101,7 +103,7 @@ export class MainMenuScene extends Phaser.Scene {
                 await FbDataLib.inviteFriends();
             },
             true
-        ).setDepth(4).setScale(0.7);
+        ).setDepth(5).setScale(0.7);
 
         this.add.existing(background);
         this.add.existing(gameArea);
@@ -164,7 +166,7 @@ export class MainMenuScene extends Phaser.Scene {
             startX,
             y,
             'highscoreIcon'
-        ).setDepth(4);
+        ).setDepth(5);
 
         this.highscore = new DefaultText(
             this, highscoreIcon.getBounds().right + padding, y,
@@ -176,7 +178,7 @@ export class MainMenuScene extends Phaser.Scene {
         const wormsKilledIcon = this.add.sprite(
             startX, y,
             'wormsIcon'
-        ).setDepth(4);
+        ).setDepth(5);
 
         this.wormsKilled = new DefaultText(
             this, wormsKilledIcon.getBounds().right + padding, y,
